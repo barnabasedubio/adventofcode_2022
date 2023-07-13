@@ -22,7 +22,7 @@ func solve(stacks []Stack, instructions []string, part int) string {
 				stacks[dest-1].Push(popped)
 			}
 		case 2:
-			// create temporary stack to place the items on, to that they retain their
+			// create temporary stack to place the items on in order to maintain
 			// original order when placing them on the destination stack
 			tempStack := Stack{}
 			for i := 0; i < amount; i++ {
@@ -49,29 +49,31 @@ func main() {
 	cratePlan = cratePlan[:len(cratePlan)-1]
 
 	instructions := strings.Split((strings.Split(string(input), "\n\n"))[1], "\n")
-	stacks := make([]Stack, numStacks)
 
+	// I will need to make identical versions of the stackList, for part 1 and part 2.
+	// calling solve() using a single slice for both parts is not going to work since
+	// solve() modifies the underlying array the slice is pointing to
+	stacks1 := make([]Stack, numStacks)
+	stacks2 := make([]Stack, numStacks)
+
+	// extract the arrangement of the crates from the input text
 	for _, line := range cratePlan {
 		for i := 0; 4*i+1 < len(line); i++ {
 			index := 4*i + 1
 			if string(line[index]) == " " {
 				continue
 			}
-			stacks[i].Push(string(line[index]))
+			stacks1[i].Push(string(line[index]))
+			stacks2[i].Push(string(line[index]))
 		}
 
 	}
 	// since items were added from top to bottom, we need to reverse
-	for _, stack := range stacks {
-		stack.Reverse()
+	for i := 0; i < len(stacks1); i++ {
+		stacks1[i].Reverse()
+		stacks2[i].Reverse()
 	}
 
-	// In order for solve() to return the proper result, I need to comment-out either part 1 or part 2.
-	// The reason for this lies in the nature of slices. Even though the slice is passed by value
-	// it still contains a pointer to the underlying array data structure.
-	// Modifications on that array are hence reflected in the slice as well.
-	// That means that the stacks variable is always modified when solve() is called.
-
-	// fmt.Println(solve(stacks, instructions, 1))
-	fmt.Println(solve(stacks, instructions, 2))
+	fmt.Println(solve(stacks1, instructions, 1))
+	fmt.Println(solve(stacks2, instructions, 2))
 }
