@@ -1,13 +1,14 @@
 package main
 
 import (
+	"aoc2022/shared"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func solve(stacks []Stack, instructions []string, part int) string {
+func solve(stacks []shared.Stack[string], instructions []string, part int) string {
 	topOfEachStack := []string{}
 	for _, instruction := range instructions {
 		instructionList := strings.Split(instruction, " ")
@@ -24,7 +25,7 @@ func solve(stacks []Stack, instructions []string, part int) string {
 		case 2:
 			// create temporary stack to place the items on in order to maintain
 			// original order when placing them on the destination stack
-			tempStack := Stack{}
+			tempStack := shared.Stack[string]{}
 			for i := 0; i < amount; i++ {
 				popped, _ := stacks[source-1].Pop()
 				tempStack.Push(popped)
@@ -36,7 +37,8 @@ func solve(stacks []Stack, instructions []string, part int) string {
 		}
 	}
 	for _, stack := range stacks {
-		topOfEachStack = append(topOfEachStack, stack.elements[len(stack.elements)-1])
+
+		topOfEachStack = append(topOfEachStack, stack.Elements[len(stack.Elements)-1])
 	}
 	return strings.Join(topOfEachStack, "")
 }
@@ -53,8 +55,8 @@ func main() {
 	// I will need to make identical versions of the stackList, for part 1 and part 2.
 	// calling solve() using a single slice for both parts is not going to work since
 	// solve() modifies the underlying array the slice is pointing to
-	stacks1 := make([]Stack, numStacks)
-	stacks2 := make([]Stack, numStacks)
+	stacks1 := make([]shared.Stack[string], numStacks)
+	stacks2 := make([]shared.Stack[string], numStacks)
 
 	// extract the arrangement of the crates from the input text
 	for _, line := range cratePlan {
