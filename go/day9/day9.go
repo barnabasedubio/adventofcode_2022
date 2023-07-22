@@ -104,16 +104,12 @@ func calculateTailPath(headPath []position) []position {
 func solve(inputList []string, part int) int {
 	headPath := calculateHeadPath(inputList)
 	tailPath := calculateTailPath(headPath)
-	switch part {
-	case 1:
-		return len(shared.Set(tailPath))
-	case 2:
+	if part == 2 {
 		for i := 0; i < 8; i++ {
 			tailPath = calculateTailPath(tailPath)
 		}
 	}
 	return len(shared.Set(tailPath))
-
 }
 
 func main() {
