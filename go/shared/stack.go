@@ -13,7 +13,7 @@ func (s *Stack[T]) Push(value T) {
 func (s *Stack[T]) Pop() (T, error) {
 	if len(s.Elements) == 0 {
 		var zero T
-		return zero, fmt.Errorf("Can not pop off empty stack")
+		return zero, fmt.Errorf("can not pop off empty stack")
 	}
 	popped := s.Elements[len(s.Elements)-1]
 	s.Elements = s.Elements[:len(s.Elements)-1]
