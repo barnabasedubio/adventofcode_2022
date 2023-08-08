@@ -1,9 +1,5 @@
 package shared
 
-import (
-	"fmt"
-)
-
 type Queue[T any] struct {
 	Elements []T
 }
@@ -12,10 +8,9 @@ func (q *Queue[T]) Push(value T) {
 	q.Elements = append(q.Elements, value)
 }
 
-func (q *Queue[T]) Pop() (T, error) {
+func (q *Queue[T]) Pop() T {
 	if len(q.Elements) == 0 {
-		var zero T
-		return zero, fmt.Errorf("can not pop off empty queue")
+		panic("Can not pop off empty Queue!")
 	}
 	popped := q.Elements[0]
 	if len(q.Elements) == 1 {
@@ -23,7 +18,7 @@ func (q *Queue[T]) Pop() (T, error) {
 	} else {
 		q.Elements = q.Elements[1:]
 	}
-	return popped, nil
+	return popped
 }
 
 func (q *Queue[T]) IsEmpty() bool {
