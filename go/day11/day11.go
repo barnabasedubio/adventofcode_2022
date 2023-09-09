@@ -103,7 +103,6 @@ func part2(monkeyInstructions []string) int64 {
 		round++
 	}
 	return calculateModMonkeyBusiness(modMonkeys)
-
 }
 
 func main() {
