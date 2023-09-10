@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"os"
 
@@ -21,12 +22,7 @@ type Node struct {
 }
 
 func part1(inputMatrix [][]string) int {
-	// we'll be using Dijstra's algorithm to get the shortest path between
-	// the source and the destination node
-	// a given node x has neighbor y only if y's height is at most 1 higher than that of x.
-	// ==> y.Height - x.Height <= 1
 	nodes := []Node{}
-	queue := []*Node{}
 	for i := range inputMatrix {
 		for j := range inputMatrix[i] {
 			letter := inputMatrix[i][j]
@@ -48,36 +44,42 @@ func part1(inputMatrix [][]string) int {
 		}
 	}
 	for i := range nodes {
-		nodes[i].Neighbours = GetNeighbours(nodes[i], nodes, inputMatrix)
-		queue = append(queue, &nodes[i])
+		nodes[i].Neighbours = GetNeighbours(nodes[i], &nodes, inputMatrix)
 	}
 
-	toBeVisited := len(queue)
+	toBeVisited := len(nodes)
 
 	for toBeVisited > 0 {
+		// perform Dijkstra's algorithm
 		// retrieve node with shortest distance from source
 		minDist := math.MaxInt32
 		minDistIndex := -1
-		for i := range queue {
-			if !queue[i].Visited && queue[i].Distance <= minDist {
-				minDist = queue[i].Distance
+		for i := range nodes {
+			if !nodes[i].Visited && nodes[i].Distance <= minDist {
+				minDist = nodes[i].Distance
 				minDistIndex = i
 			}
 		}
-		for i := range queue[minDistIndex].Neighbours {
-			if !queue[minDistIndex].Neighbours[i].Visited {
-				if queue[minDistIndex].Distance+1 < queue[minDistIndex].Neighbours[i].Distance {
-					queue[minDistIndex].Neighbours[i].Distance = queue[minDistIndex].Distance + 1
-					queue[minDistIndex].Neighbours[i].Previous = queue[minDistIndex]
+		fmt.Printf("\n\n-------------------------\n\n")
+		log.Printf("Looking at neighbors of %v\n", nodes[minDistIndex])
+		for i := range nodes[minDistIndex].Neighbours {
+			log.Printf("found %v\n", nodes[minDistIndex].Neighbours[i])
+			if !nodes[minDistIndex].Neighbours[i].Visited {
+				if nodes[minDistIndex].Distance+1 < nodes[minDistIndex].Neighbours[i].Distance {
+					log.Println("update distance...")
+					log.Println(nodes[minDistIndex].Neighbours[i])
+					nodes[minDistIndex].Neighbours[i].Distance = nodes[minDistIndex].Distance + 1
+					nodes[minDistIndex].Neighbours[i].Previous = &nodes[minDistIndex]
+					log.Println(nodes[minDistIndex].Neighbours[i])
 				}
+			} else {
+				log.Println("Has already been visited. Skipping...")
 			}
 		}
-		// remove node from queue
-		// queue = append(queue[:minDistIndex], queue[minDistIndex+1:]...)
-		queue[minDistIndex].Visited = true
+		nodes[minDistIndex].Visited = true
 		toBeVisited--
 	}
-	fmt.Println(nodes)
+	// log.Println(nodes)
 
 	return -1
 }
