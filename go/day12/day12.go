@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"os"
-
-	//"slices"
+	"slices"
 	"strings"
 )
 
@@ -21,13 +19,13 @@ type Node struct {
 	Previous   *Node
 }
 
-func part1(inputMatrix [][]string) int {
+func dijkstra(inputMatrix [][]string, sourceRow int, sourceCol int) int {
 	nodes := []Node{}
 	for i := range inputMatrix {
 		for j := range inputMatrix[i] {
 			letter := inputMatrix[i][j]
 			distance := math.MaxInt32
-			if letter == "S" {
+			if sourceRow == i && sourceCol == j {
 				distance = 0
 			}
 			newNode := Node{
@@ -44,14 +42,14 @@ func part1(inputMatrix [][]string) int {
 		}
 	}
 	for i := range nodes {
-		nodes[i].Neighbours = GetNeighbours(nodes[i], &nodes, inputMatrix)
+		SetNeighbours(&nodes[i], &nodes, inputMatrix)
 	}
 
 	toBeVisited := len(nodes)
 
 	for toBeVisited > 0 {
 		// perform Dijkstra's algorithm
-		// retrieve node with shortest distance from source
+
 		minDist := math.MaxInt32
 		minDistIndex := -1
 		for i := range nodes {
@@ -60,36 +58,58 @@ func part1(inputMatrix [][]string) int {
 				minDistIndex = i
 			}
 		}
-		fmt.Printf("\n\n-------------------------\n\n")
-		log.Printf("Looking at neighbors of %v\n", nodes[minDistIndex])
 		for i := range nodes[minDistIndex].Neighbours {
-			log.Printf("found %v\n", nodes[minDistIndex].Neighbours[i])
 			if !nodes[minDistIndex].Neighbours[i].Visited {
 				if nodes[minDistIndex].Distance+1 < nodes[minDistIndex].Neighbours[i].Distance {
-					log.Println("update distance...")
-					log.Println(nodes[minDistIndex].Neighbours[i])
 					nodes[minDistIndex].Neighbours[i].Distance = nodes[minDistIndex].Distance + 1
 					nodes[minDistIndex].Neighbours[i].Previous = &nodes[minDistIndex]
-					log.Println(nodes[minDistIndex].Neighbours[i])
 				}
-			} else {
-				log.Println("Has already been visited. Skipping...")
 			}
 		}
 		nodes[minDistIndex].Visited = true
 		toBeVisited--
 	}
-	// log.Println(nodes)
 
+	for _, node := range nodes {
+		if node.Letter == "E" {
+			return node.Distance
+		}
+	}
 	return -1
 }
 
+func part1(inputMatrix [][]string) int {
+	for i := range inputMatrix {
+		for j := range inputMatrix[i] {
+			if inputMatrix[i][j] == "S" {
+				return dijkstra(inputMatrix, i, j)
+			}
+		}
+	}
+	return -1
+}
+
+func part2(inputMatrix [][]string) int {
+	fmt.Println("Solving part 2. This will take a while...")
+	nodesWithHeight1 := []int{}
+	for i := range inputMatrix {
+		for j := range inputMatrix[i] {
+			if inputMatrix[i][j] == "a" || inputMatrix[i][j] == "S" {
+				shortestPath := dijkstra(inputMatrix, i, j)
+				nodesWithHeight1 = append(nodesWithHeight1, shortestPath)
+			}
+		}
+	}
+	return slices.Min(nodesWithHeight1)
+}
+
 func main() {
-	input, _ := os.ReadFile("day12.test.in")
+	input, _ := os.ReadFile("day12.in")
 	inputList := strings.Split(string(input), "\n")
 	inputMatrix := make([][]string, len(inputList))
 	for i := range inputMatrix {
 		inputMatrix[i] = strings.Split(inputList[i], "")
 	}
 	fmt.Println(part1(inputMatrix))
+	fmt.Println(part2(inputMatrix))
 }

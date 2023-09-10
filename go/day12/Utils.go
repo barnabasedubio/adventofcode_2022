@@ -1,9 +1,5 @@
 package main
 
-import (
-	"log"
-	"fmt"
-)
 
 func GetHeight(letter string) int {
 	var letterAsRune rune
@@ -18,55 +14,45 @@ func GetHeight(letter string) int {
 	return int(letterAsRune) - 96
 }
 
-func GetNeighbours(current Node, nodeList *[]Node, inputMatrix [][]string) []*Node {
-	neighbours := []*Node{}
+func SetNeighbours(current *Node, nodeList *[]Node, inputMatrix [][]string) {
 	// top
 	if current.Row-1 >= 0 {
-		for _, elem := range *nodeList {
-			if (elem.Row == current.Row-1 && elem.Col == current.Col) &&
-				(elem.Height-current.Height <= 1) {
-				top := &elem
-				neighbours = append(neighbours, top)
+		for i := range *nodeList {
+			if ((*nodeList)[i].Row == current.Row-1 && (*nodeList)[i].Col == current.Col) &&
+				((*nodeList)[i].Height-current.Height <= 1) {
+				current.Neighbours = append(current.Neighbours, &(*nodeList)[i])
 				break
 			}
 		}
 	}
 	// bottom
 	if current.Row+1 <= len(inputMatrix) {
-		for _, elem := range *nodeList {
-			if (elem.Row == current.Row+1 && elem.Col == current.Col) &&
-				(elem.Height-current.Height <= 1) {
-				bottom := &elem
-				neighbours = append(neighbours, bottom)
+		for i := range *nodeList {
+			if ((*nodeList)[i].Row == current.Row+1 && (*nodeList)[i].Col == current.Col) &&
+				((*nodeList)[i].Height-current.Height <= 1) {
+				current.Neighbours = append(current.Neighbours, &(*nodeList)[i])
 				break
 			}
 		}
 	}
 	// left
 	if current.Col-1 >= 0 {
-		for _, elem := range *nodeList {
-			if (elem.Col == current.Col-1 && elem.Row == current.Row) &&
-				(elem.Height-current.Height <= 1) {
-				left := &elem
-				neighbours = append(neighbours, left)
+		for i := range *nodeList {
+			if ((*nodeList)[i].Col == current.Col-1 && (*nodeList)[i].Row == current.Row) &&
+				((*nodeList)[i].Height-current.Height <= 1) {
+				current.Neighbours = append(current.Neighbours, &(*nodeList)[i])
 				break
 			}
 		}
 	}
 	// right
 	if current.Col+1 <= len(inputMatrix[0]) {
-		for _, elem := range *nodeList {
-			if (elem.Col == current.Col+1 && elem.Row == current.Row) &&
-				(elem.Height-current.Height <= 1) {
-				right := &elem
-				neighbours = append(neighbours, right)
+		for i := range *nodeList {
+			if ((*nodeList)[i].Col == current.Col+1 && (*nodeList)[i].Row == current.Row) &&
+				((*nodeList)[i].Height-current.Height <= 1) {
+				current.Neighbours = append(current.Neighbours, &(*nodeList)[i])
 				break
 			}
 		}
 	}
-	fmt.Println()
-	for i := range neighbours {
-		log.Println(*neighbours[i])
-	}
-	return neighbours
 }
