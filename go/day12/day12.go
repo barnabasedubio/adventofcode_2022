@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 )
 
 type Node struct {
@@ -19,7 +20,11 @@ type Node struct {
 	Previous   *Node
 }
 
-func dijkstra(inputMatrix [][]string, sourceRow int, sourceCol int) int {
+func dijkstra(inputMatrix [][]string, sourceRow int, sourceCol int, done chan bool, result chan int) {
+	defer func() {
+		done <- true
+	}()
+
 	nodes := []Node{}
 	for i := range inputMatrix {
 		for j := range inputMatrix[i] {
@@ -48,8 +53,6 @@ func dijkstra(inputMatrix [][]string, sourceRow int, sourceCol int) int {
 	toBeVisited := len(nodes)
 
 	for toBeVisited > 0 {
-		// perform Dijkstra's algorithm
-
 		minDist := math.MaxInt32
 		minDistIndex := -1
 		for i := range nodes {
@@ -72,34 +75,51 @@ func dijkstra(inputMatrix [][]string, sourceRow int, sourceCol int) int {
 
 	for _, node := range nodes {
 		if node.Letter == "E" {
-			return node.Distance
+			result <- node.Distance
+			break
 		}
 	}
-	return -1
 }
 
 func part1(inputMatrix [][]string) int {
+	startTime := time.Now()
+	done := make(chan bool)
+	result := make(chan int)
 	for i := range inputMatrix {
 		for j := range inputMatrix[i] {
 			if inputMatrix[i][j] == "S" {
-				return dijkstra(inputMatrix, i, j)
+				go dijkstra(inputMatrix, i, j, done, result)
 			}
 		}
 	}
-	return -1
+	minDistance := <-result
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+	fmt.Printf("Completed part 1 in %v seconds\n", elapsedTime.Seconds())
+	return minDistance
+
 }
 
 func part2(inputMatrix [][]string) int {
-	fmt.Println("Solving part 2. This will take a while...")
+	startTime := time.Now()
+	numWorkers := 0
+	done := make(chan bool)
+	results := make(chan int)
 	nodesWithHeight1 := []int{}
 	for i := range inputMatrix {
 		for j := range inputMatrix[i] {
 			if inputMatrix[i][j] == "a" || inputMatrix[i][j] == "S" {
-				shortestPath := dijkstra(inputMatrix, i, j)
-				nodesWithHeight1 = append(nodesWithHeight1, shortestPath)
+				numWorkers++
+				go dijkstra(inputMatrix, i, j, done, results)
 			}
 		}
 	}
+	for i := 0; i < numWorkers; i++ {
+		nodesWithHeight1 = append(nodesWithHeight1, <-results)
+	}
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+	fmt.Printf("Completed part 2 in %v seconds\n", elapsedTime.Seconds())
 	return slices.Min(nodesWithHeight1)
 }
 
